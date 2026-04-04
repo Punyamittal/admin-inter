@@ -19,16 +19,16 @@ const Sidebar = ({ isOpen, toggleSidebar, isMobile }) => {
     { name: 'Shops', icon: Store, path: '/shops' },
     { name: 'Categories', icon: Layers, path: '/categories' },
     { name: 'Vendors', icon: Users, path: '/vendors' },
+    { name: 'Settings', icon: Settings, path: '/settings/password' },
   ];
 
   const handleLogout = async () => {
-    const { success } = await logout();
-    if (success) navigate('/login');
+    await logout();
+    navigate('/login');
   };
 
   const sidebarStyle = {
     width: '260px',
-    backgroundColor: '#0F172A',
     color: '#CBD5E1',
     display: 'flex',
     flexDirection: 'column',
@@ -45,7 +45,7 @@ const Sidebar = ({ isOpen, toggleSidebar, isMobile }) => {
   };
 
   return (
-    <div style={sidebarStyle}>
+    <div className="sidebar-glass" style={sidebarStyle}>
       <div style={{ padding: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #1E293B' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{ 
@@ -79,12 +79,13 @@ const Sidebar = ({ isOpen, toggleSidebar, isMobile }) => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              padding: '12px 16px',
-              borderRadius: '10px',
+              padding: '12px 18px',
+              borderRadius: '999px',
               textDecoration: 'none',
               color: isActive ? '#fff' : '#94A3B8',
-              backgroundColor: isActive ? '#1E293B' : 'transparent',
-              transition: 'all 0.2s'
+              backgroundColor: isActive ? 'rgba(255, 255, 255, 0.12)' : 'transparent',
+              border: isActive ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid transparent',
+              transition: 'background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.15s ease',
             })}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -96,8 +97,9 @@ const Sidebar = ({ isOpen, toggleSidebar, isMobile }) => {
         ))}
       </nav>
 
-      <div style={{ padding: '20px 12px', borderTop: '1px solid #1E293B' }}>
+      <div style={{ padding: '20px 12px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
         <button
+          type="button"
           onClick={handleLogout}
           style={{
             width: '100%',

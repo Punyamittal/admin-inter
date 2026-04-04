@@ -1,17 +1,22 @@
-import React, { useState } from 'react';
-import { 
-  Search, Bell, MessageSquare, 
-  Menu, User, Settings, LogOut, Loader2, ChevronDown,
-  ShieldCheck, Smartphone, Eye, EyeOff, LayoutPanelLeft
-} from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
+import { Search, Bell, Menu, LogOut, Loader2 } from 'lucide-react';
 import { useAuthContext } from '../../auth/AuthContext';
-import { supabase } from '../../lib/supabaseClient';
 import toast from 'react-hot-toast';
 
 const TopBar = ({ toggleSidebar }) => {
-  const { user, logout } = useAuthContext();
+  const { admin, logout } = useAuthContext();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [loading, setLoading] = useState(false);
+  const menuRef = useRef(null);
+
+  useEffect(() => {
+    const onDoc = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) setShowProfileMenu(false);
+    };
+    document.addEventListener('click', onDoc);
+    return () => document.removeEventListener('click', onDoc);
+  }, []);
 
   const handleLogout = async () => {
     setLoading(true);
@@ -19,67 +24,154 @@ const TopBar = ({ toggleSidebar }) => {
     setLoading(false);
   };
 
+  const initial = admin?.email?.charAt(0).toUpperCase() || admin?.full_name?.charAt(0).toUpperCase() || 'A';
+
   return (
-    <header style={{ 
-      height: '70px', 
-      backgroundColor: '#fff', 
-      borderBottom: '1px solid var(--border)', 
-      display: 'flex', 
-      alignItems: 'center', 
-      justifyContent: 'space-between', 
-      padding: '0 24px',
-      position: 'sticky',
-      top: 0,
-      zIndex: 997,
-      backdropFilter: 'blur(8px)',
-      backgroundColor: 'rgba(255, 255, 255, 0.9)'
-    }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-        <button 
-          onClick={toggleSidebar} 
-          style={{ 
-            background: 'none', 
-            border: 'none', 
-            cursor: 'pointer', 
-            color: 'var(--primary)',
-            padding: '8px',
-            borderRadius: '8px',
-            display: 'flex'
-          }}
-          className="icon-btn-hover"
+    <header
+      className="topbar-glass"
+      style={{
+        height: 'var(--header-height)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '0 22px',
+        position: 'sticky',
+        top: 0,
+        zIndex: 997,
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', minWidth: 0 }}>
+        <button
+          type="button"
+          onClick={toggleSidebar}
+          aria-label="Open menu"
+          className="icon-circle-btn"
+          style={{ flexShrink: 0 }}
         >
-          <Menu size={24} />
+          <Menu size={22} />
         </button>
-        <div style={{ position: 'relative', maxWidth: '400px', width: '100%', display: 'none', md: 'block' }}>
-           {/* Desktop search - optionally hidden on small mobile */}
-        </div>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 16px', borderRadius: '14px', backgroundColor: '#F8FAFC', border: '1px solid var(--border)', position: 'relative', cursor: 'pointer' }} onClick={() => setShowProfileMenu(!showProfileMenu)}>
-           <div style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: 'var(--accent)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
-              {user?.email?.charAt(0).toUpperCase()}
-           </div>
-           <div style={{ display: 'none', md: 'block' }}>
-              <p style={{ fontSize: '13px', fontWeight: '700', color: 'var(--primary)' }}>Super Admin</p>
-              <p style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{user?.email}</p>
-           </div>
-           
-           {/* DROPDOWN MENU */}
-           {showProfileMenu && (
-             <div style={{ position: 'absolute', top: 'calc(100% + 12px)', right: 0, width: '220px', backgroundColor: '#fff', borderRadius: '16px', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)', border: '1px solid var(--border)', overflow: 'hidden', zIndex: 1001 }}>
-                <div style={{ padding: '16px', backgroundColor: '#F8FAFC', borderBottom: '1px solid var(--border)' }}>
-                   <p style={{ fontSize: '14px', fontWeight: 'bold' }}>Access Control</p>
-                   <p style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Verified Super Admin Instance</p>
-                </div>
-                <div style={{ padding: '8px' }}>
-                   <button onClick={handleLogout} disabled={loading} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444', borderRadius: '8px', fontSize: '13px' }} className="btn-logout-hover">
-                      <LogOut size={16} />
-                      {loading ? 'Processing...' : 'Secure Sign Out'}
-                   </button>
-                </div>
-             </div>
-           )}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
+        <button
+          type="button"
+          className="icon-circle-btn"
+          aria-label="Search"
+          onClick={() => toast('Search is coming soon.', { icon: '🔎' })}
+        >
+          <Search size={20} />
+        </button>
+        <button
+          type="button"
+          className="icon-circle-btn"
+          aria-label="Notifications"
+          style={{ position: 'relative' }}
+          onClick={() => toast('No new notifications.', { icon: '✓' })}
+        >
+          <Bell size={20} />
+          <span
+            style={{
+              position: 'absolute',
+              top: '10px',
+              right: '10px',
+              width: '8px',
+              height: '8px',
+              borderRadius: '50%',
+              background: '#6366f1',
+              border: '2px solid rgba(255,255,255,0.95)',
+              boxShadow: '0 0 8px rgba(99, 102, 241, 0.6)',
+            }}
+          />
+        </button>
+
+        <div ref={menuRef} style={{ position: 'relative', marginLeft: '4px' }}>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowProfileMenu(!showProfileMenu);
+            }}
+            className="glass-card"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              padding: '8px 12px 8px 10px',
+              borderRadius: '999px',
+              cursor: 'pointer',
+              border: '1px solid rgba(255, 255, 255, 0.75)',
+              boxShadow: '0 4px 20px rgba(15, 23, 42, 0.06)',
+            }}
+          >
+            <div
+              style={{
+                width: '38px',
+                height: '38px',
+                borderRadius: '12px',
+                background: 'linear-gradient(145deg, #6366f1, #4f46e5)',
+                color: '#fff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontWeight: 700,
+                fontSize: '15px',
+              }}
+            >
+              {initial}
+            </div>
+            <div className="topbar-profile-text">
+              <p style={{ fontSize: '13px', fontWeight: 700, color: 'var(--primary)' }}>Super Admin</p>
+              <p style={{ fontSize: '11px', color: 'var(--text-muted)', maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {admin?.email}
+              </p>
+            </div>
+          </button>
+
+          {showProfileMenu && (
+            <div
+              className="glass-card"
+              style={{
+                position: 'absolute',
+                top: 'calc(100% + 10px)',
+                right: 0,
+                width: '240px',
+                padding: 0,
+                overflow: 'hidden',
+                zIndex: 1001,
+                borderRadius: '18px',
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div style={{ padding: '16px 18px', borderBottom: '1px solid rgba(226, 232, 240, 0.9)' }}>
+                <p style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>Signed in</p>
+                <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px', wordBreak: 'break-all' }}>{admin?.email}</p>
+              </div>
+              <div style={{ padding: '8px' }}>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  disabled={loading}
+                  style={{
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    padding: '12px 14px',
+                    background: 'rgba(254, 242, 242, 0.85)',
+                    border: '1px solid rgba(254, 226, 226, 0.9)',
+                    cursor: loading ? 'wait' : 'pointer',
+                    color: '#b91c1c',
+                    borderRadius: '12px',
+                    fontSize: '13px',
+                    fontWeight: 600,
+                  }}
+                >
+                  {loading ? <Loader2 className="animate-spin" size={18} /> : <LogOut size={18} />}
+                  {loading ? 'Signing out…' : 'Sign out'}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </header>

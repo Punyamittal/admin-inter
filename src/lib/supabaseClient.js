@@ -18,3 +18,8 @@ export const supabase = createClient(
     }
   }
 )
+
+// Realtime postgres_changes on RLS-protected tables (e.g. public.shops) require:
+// 1) Table in publication supabase_realtime (see supabase/migrations/*realtime*shops*.sql)
+// 2) SELECT policies that allow the signed-in admin to read relevant rows
+// The client already calls realtime.setAuth on SIGNED_IN / TOKEN_REFRESHED (supabase-js).

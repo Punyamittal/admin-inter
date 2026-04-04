@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, Home, ArrowRight, Package, Store, Loader2, X, ExternalLink, MapPin, Search, Tag } from 'lucide-react';
-import { supabase } from '../lib/supabaseClient';
+import { Plus, Edit2, Trash2, Package, Store, Loader2, X } from 'lucide-react';
 import { supabaseAdmin } from '../lib/supabaseAdmin';
 import toast from 'react-hot-toast';
+import { AdminPage, AdminPageHeader } from '../components/layout/AdminPage';
 
 const CategoriesGrid = ({ refreshTrigger, onEdit, onDetail }) => {
   const [categories, setCategories] = useState([]);
@@ -10,48 +10,52 @@ const CategoriesGrid = ({ refreshTrigger, onEdit, onDetail }) => {
 
   const categoryMeta = {
     'Full Meals': { emoji: '🍱', color: '#FFEDD5' },
-    'Snacks': { emoji: '🍟', color: '#DBEAFE' },
-    'Beverages': { emoji: '☕', color: '#D1FAE5' },
-    'Desserts': { emoji: '🍰', color: '#F3E8FF' },
-    'Healthy': { emoji: '🥗', color: '#FEF3C7' },
+    Snacks: { emoji: '🍟', color: '#DBEAFE' },
+    Beverages: { emoji: '☕', color: '#D1FAE5' },
+    Desserts: { emoji: '🍰', color: '#F3E8FF' },
+    Healthy: { emoji: '🥗', color: '#FEF3C7' },
     'Fast Food': { emoji: '🍔', color: '#FEE2E2' },
-    'Sandwiches': { emoji: '🥪', color: '#FFEDD5' },
+    Sandwiches: { emoji: '🥪', color: '#FFEDD5' },
     'Chaat Items': { emoji: '🥘', color: '#DBEAFE' },
     'Pasta Menu': { emoji: '🍝', color: '#D1FAE5' },
     'Italian Specials': { emoji: '🍕', color: '#F3E8FF' },
-    'Fries': { emoji: '🍟', color: '#FEE2E2' },
-    'Shawarma': { emoji: '🌯', color: '#FEF3C7' },
+    Fries: { emoji: '🍟', color: '#FEE2E2' },
+    Shawarma: { emoji: '🌯', color: '#FEF3C7' },
     'Egg Items': { emoji: '🥚', color: '#DBEAFE' },
-    'Maggi': { emoji: '🍜', color: '#D1FAE5' },
-    'Rolls': { emoji: '🌯', color: '#F3E8FF' },
-    'Burgers': { emoji: '🍔', color: '#FEE2E2' },
-    'Omelette': { emoji: '🍳', color: '#FEF3C7' },
-    'Juices': { emoji: '🥤', color: '#D1FAE5' },
-    'Milkshakes': { emoji: '🥤', color: '#F3E8FF' },
-    'Lassi': { emoji: '🥛', color: '#DBEAFE' },
+    Maggi: { emoji: '🍜', color: '#D1FAE5' },
+    Rolls: { emoji: '🌯', color: '#F3E8FF' },
+    Burgers: { emoji: '🍔', color: '#FEE2E2' },
+    Omelette: { emoji: '🍳', color: '#FEF3C7' },
+    Juices: { emoji: '🥤', color: '#D1FAE5' },
+    Milkshakes: { emoji: '🥤', color: '#F3E8FF' },
+    Lassi: { emoji: '🥛', color: '#DBEAFE' },
     'Cold Drinks': { emoji: '🧊', color: '#DBEAFE' },
-    'Plates': { emoji: '🍽️', color: '#F3E8FF' },
+    Plates: { emoji: '🍽️', color: '#F3E8FF' },
   };
 
   const fetchRealData = async () => {
     setLoading(true);
     const { data: cats } = await supabaseAdmin.from('categories').select('*');
     const { data: items } = await supabaseAdmin.from('menu_items').select('category_id, shop_id');
-    
+
     if (cats && items) {
-        setCategories(cats.map(c => {
-            const categoryItems = items.filter(i => i.category_id === c.id);
-            const uniqueShops = new Set(categoryItems.map(i => i.shop_id));
+      setCategories(
+        cats
+          .map((c) => {
+            const categoryItems = items.filter((i) => i.category_id === c.id);
+            const uniqueShops = new Set(categoryItems.map((i) => i.shop_id));
             const meta = categoryMeta[c.name] || { emoji: '🍴', color: '#F1F5F9' };
             return {
-                id: c.id,
-                name: c.name,
-                shopsCount: uniqueShops.size,
-                itemsCount: categoryItems.length,
-                emoji: meta.emoji,
-                color: meta.color
+              id: c.id,
+              name: c.name,
+              shopsCount: uniqueShops.size,
+              itemsCount: categoryItems.length,
+              emoji: meta.emoji,
+              color: meta.color,
             };
-        }).sort((a, b) => b.itemsCount - a.itemsCount));
+          })
+          .sort((a, b) => b.itemsCount - a.itemsCount)
+      );
     }
     setLoading(false);
   };
@@ -63,33 +67,85 @@ const CategoriesGrid = ({ refreshTrigger, onEdit, onDetail }) => {
   const handleDelete = async (cat, e) => {
     e.stopPropagation();
     if (window.confirm(`Permanently remove category "${cat.name}"?`)) {
-        const { error } = await supabaseAdmin.from('categories').delete().eq('id', cat.id);
-        if (!error) { toast.success('Removed.'); fetchRealData(); }
+      const { error } = await supabaseAdmin.from('categories').delete().eq('id', cat.id);
+      if (!error) {
+        toast.success('Removed.');
+        fetchRealData();
+      }
     }
   };
 
-  if (loading) return <div style={{ padding: '60px', textAlign: 'center' }}><Loader2 className="animate-spin" size={40} color="var(--accent)" /></div>;
+  if (loading) {
+    return (
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '18px' }}>
+        {[...Array(6)].map((_, i) => (
+          <div key={i} className="glass-card" style={{ padding: '24px', minHeight: '168px' }}>
+            <div className="skeleton-block" style={{ height: '64px', width: '64px', borderRadius: '16px', marginBottom: '18px' }} />
+            <div className="skeleton-block" style={{ height: '22px', width: '72%', marginBottom: '14px' }} />
+            <div className="skeleton-block" style={{ height: '14px', width: '48%' }} />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (categories.length === 0) {
+    return <div className="empty-state-muted glass-card" style={{ borderRadius: 'var(--glass-radius)' }}>No categories yet — create one to classify menu items.</div>;
+  }
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '24px', marginTop: '32px' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '18px' }}>
       {categories.map((cat) => (
-        <div key={cat.id} className="card clickable" onClick={() => onDetail(cat)} style={{ 
-          display: 'flex', flexDirection: 'column', 
-          justifyContent: 'space-between', borderTop: `4px solid ${cat.color}`,
-          cursor: 'pointer'
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
-            <div style={{ fontSize: '32px', width: '64px', height: '64px', backgroundColor: cat.color, borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{cat.emoji}</div>
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <button onClick={(e) => { e.stopPropagation(); onEdit(cat); }} style={{ padding: '8px', color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer' }}><Edit2 size={16} /></button>
-              <button onClick={(e) => handleDelete(cat, e)} style={{ padding: '8px', color: 'var(--danger)', background: 'none', border: 'none', cursor: 'pointer' }}><Trash2 size={16} /></button>
+        <div
+          key={cat.id}
+          className="glass-card glass-card--interactive"
+          onClick={() => onDetail(cat)}
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            padding: '22px',
+            borderTop: `4px solid ${cat.color}`,
+            cursor: 'pointer',
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '18px' }}>
+            <div
+              style={{
+                fontSize: '32px',
+                width: '64px',
+                height: '64px',
+                backgroundColor: cat.color,
+                borderRadius: '16px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                border: '1px solid rgba(255,255,255,0.5)',
+                boxShadow: '0 4px 14px rgba(15,23,42,0.08)',
+              }}
+            >
+              {cat.emoji}
+            </div>
+            <div style={{ display: 'flex', gap: '4px' }} onClick={(e) => e.stopPropagation()}>
+              <button type="button" onClick={(e) => { e.stopPropagation(); onEdit(cat); }} className="icon-circle-btn" style={{ width: '38px', height: '38px' }} aria-label="Edit category">
+                <Edit2 size={16} />
+              </button>
+              <button type="button" onClick={(e) => handleDelete(cat, e)} className="icon-circle-btn" style={{ width: '38px', height: '38px', color: 'var(--danger)' }} aria-label="Delete category">
+                <Trash2 size={16} />
+              </button>
             </div>
           </div>
           <div>
-            <h3 style={{ fontSize: '18px', marginBottom: '8px', color: 'var(--primary)' }}>{cat.name}</h3>
-            <div style={{ display: 'flex', gap: '16px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: 'var(--text-muted)' }}><Store size={14} /><span>{cat.shopsCount} Shops</span></div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: 'var(--text-muted)' }}><Package size={14} /><span>{cat.itemsCount} Items</span></div>
+            <h3 style={{ fontSize: '18px', fontWeight: 800, marginBottom: '10px', color: '#0f172a' }}>{cat.name}</h3>
+            <div style={{ display: 'flex', gap: '16px', fontSize: '13px', fontWeight: 600, color: '#64748b' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Store size={14} />
+                {cat.shopsCount} shops
+              </span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Package size={14} />
+                {cat.itemsCount} items
+              </span>
             </div>
           </div>
         </div>
@@ -114,14 +170,15 @@ const Categories = () => {
     setSelectedCat(cat);
     setIsDetailOpen(true);
     setLoadingDetail(true);
-    // Fetch all items in this category across all shops
     const { data } = await supabaseAdmin
-        .from('menu_items')
-        .select(`
+      .from('menu_items')
+      .select(
+        `
             id, name, price,
             shops (name)
-        `)
-        .eq('category_id', cat.id);
+        `
+      )
+      .eq('category_id', cat.id);
     setCatItems(data || []);
     setLoadingDetail(false);
   };
@@ -135,87 +192,144 @@ const Categories = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    const res = editingCat 
-        ? await supabaseAdmin.from('categories').update({ name: catName }).eq('id', editingCat.id)
-        : await supabaseAdmin.from('categories').insert([{ name: catName }]);
+    const res = editingCat
+      ? await supabaseAdmin.from('categories').update({ name: catName }).eq('id', editingCat.id)
+      : await supabaseAdmin.from('categories').insert([{ name: catName }]);
     if (!res.error) {
-        toast.success(`Success!`);
-        setIsModalOpen(false);
-        setRefreshTrigger(prev => prev + 1);
+      toast.success('Saved.');
+      setIsModalOpen(false);
+      setRefreshTrigger((prev) => prev + 1);
     }
     setIsSubmitting(false);
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column' }}>
-      {/* CATEGORY DETAIL MODAL WITH ITEM GLOBAL LIST */}
-      {isDetailOpen && selectedCat && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
-          backgroundColor: 'rgba(15, 23, 42, 0.6)', backdropFilter: 'blur(8px)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1100
-        }}>
-          <div className="card" style={{ width: '100%', maxWidth: '520px', padding: '0', overflow: 'hidden', maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}>
-             <button onClick={() => setIsDetailOpen(false)} style={{ position: 'absolute', right: '16px', top: '16px', border: 'none', background: 'white', borderRadius: '50%', padding: '6px', cursor: 'pointer', zIndex: 10 }}><X size={20} color="var(--text-muted)" /></button>
-             
-             <div style={{ padding: '32px', backgroundColor: selectedCat.color, flexShrink: 0 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                    <div style={{ fontSize: '32px', width: '64px', height: '64px', backgroundColor: 'white', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}>{selectedCat.emoji}</div>
-                    <div>
-                        <h2 style={{ fontSize: '20px', color: 'var(--primary)' }}>{selectedCat.name}</h2>
-                        <p style={{ color: 'var(--text-muted)', fontSize: '13px' }}>Segment Analysis & Global Catalog</p>
-                    </div>
-                </div>
-             </div>
+    <AdminPage>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
+        {isDetailOpen && selectedCat && (
+          <div className="modal-overlay" onClick={() => setIsDetailOpen(false)} role="presentation">
+            <div
+              className="modal-glass modal-glass--wide"
+              style={{ padding: 0, maxWidth: '520px', maxHeight: '88vh', display: 'flex', flexDirection: 'column' }}
+              onClick={(e) => e.stopPropagation()}
+              role="dialog"
+            >
+              <button type="button" className="modal-close-btn" onClick={() => setIsDetailOpen(false)} aria-label="Close">
+                <X size={20} />
+              </button>
 
-             <div style={{ padding: '24px', overflowY: 'auto' }}>
-                <h4 style={{ fontSize: '12px', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '16px', fontWeight: 'bold' }}>Globally Tracked Items</h4>
-                {loadingDetail ? <Loader2 className="animate-spin" size={24} /> : (
+              <div style={{ padding: '28px 32px', backgroundColor: selectedCat.color, flexShrink: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                  <div
+                    style={{
+                      fontSize: '32px',
+                      width: '64px',
+                      height: '64px',
+                      backgroundColor: 'white',
+                      borderRadius: '16px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      boxShadow: '0 8px 24px rgba(15,23,42,0.12)',
+                    }}
+                  >
+                    {selectedCat.emoji}
+                  </div>
+                  <div>
+                    <h2 style={{ fontSize: '22px', fontWeight: 800, color: '#0f172a' }}>{selectedCat.name}</h2>
+                    <p style={{ color: '#475569', fontSize: '13px', fontWeight: 500 }}>Items across all shops</p>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ padding: '22px 28px', overflowY: 'auto', flex: 1 }}>
+                <h4 style={{ fontSize: '11px', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '14px', fontWeight: 800, letterSpacing: '0.06em' }}>Menu items</h4>
+                {loadingDetail ? (
+                  <div style={{ padding: '24px', display: 'flex', justifyContent: 'center' }}>
+                    <Loader2 className="animate-spin" size={28} color="var(--accent)" />
+                  </div>
+                ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                     {catItems.map(item => (
-                        <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', backgroundColor: '#F8FAFC', borderRadius: '10px', border: '1px solid #E2E8F0' }}>
-                           <div>
-                              <p style={{ fontWeight: '600', fontSize: '13px' }}>{item.name}</p>
-                              <p style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Sold at: {item.shops?.name}</p>
-                           </div>
-                           <div style={{ fontWeight: '700', color: 'var(--primary)', fontSize: '13px' }}>₹{item.price}</div>
+                    {catItems.map((item) => (
+                      <div key={item.id} className="glass-inset" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px' }}>
+                        <div>
+                          <p style={{ fontWeight: 700, fontSize: '13px', color: '#0f172a' }}>{item.name}</p>
+                          <p style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{item.shops?.name}</p>
                         </div>
-                     ))}
-                     {catItems.length === 0 && <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>No items discovered.</p>}
+                        <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '13px' }}>₹{item.price}</div>
+                      </div>
+                    ))}
+                    {catItems.length === 0 && <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>No items in this category.</p>}
                   </div>
                 )}
-             </div>
+              </div>
 
-             <div style={{ padding: '20px 32px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>Total Variations: <strong>{selectedCat.itemsCount}</strong></span>
-                <button onClick={() => setIsDetailOpen(false)} className="btn btn-primary" style={{ padding: '8px 20px' }}>Close</button>
-             </div>
+              <div
+                style={{
+                  padding: '18px 28px',
+                  borderTop: '1px solid rgba(226, 232, 240, 0.95)',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  flexShrink: 0,
+                }}
+              >
+                <span style={{ fontSize: '14px', color: 'var(--text-muted)', fontWeight: 500 }}>
+                  Total: <strong style={{ color: '#0f172a' }}>{selectedCat.itemsCount}</strong>
+                </span>
+                <button type="button" onClick={() => setIsDetailOpen(false)} className="btn btn-primary btn-rounded" style={{ padding: '10px 22px' }}>
+                  Close
+                </button>
+              </div>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {isModalOpen && (
-        <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(15, 23, 42, 0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1200 }}>
-          <div className="card" style={{ width: '400px', padding: '32px' }}>
-             <h2 style={{ fontSize: '20px', marginBottom: '24px' }}>{editingCat ? 'Rename' : 'New Category'}</h2>
-             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <input type="text" required value={catName} onChange={(e) => setCatName(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid var(--border)' }} />
+        {isModalOpen && (
+          <div className="modal-overlay" onClick={() => setIsModalOpen(false)} role="presentation">
+            <div className="modal-glass modal-glass--compact" onClick={(e) => e.stopPropagation()} role="dialog">
+              <button type="button" className="modal-close-btn" onClick={() => setIsModalOpen(false)} aria-label="Close">
+                <X size={20} />
+              </button>
+              <h2 style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', marginBottom: '20px', paddingRight: '40px' }}>{editingCat ? 'Rename category' : 'New category'}</h2>
+              <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <input type="text" required className="input-modal-glass" value={catName} onChange={(e) => setCatName(e.target.value)} placeholder="Category name" />
                 <div style={{ display: 'flex', gap: '12px' }}>
-                    <button type="button" onClick={() => setIsModalOpen(false)} className="btn btn-outline" style={{ flex: 1 }}>Discard</button>
-                    <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>Save</button>
+                  <button type="button" onClick={() => setIsModalOpen(false)} className="btn btn-outline btn-rounded" style={{ flex: 1 }}>
+                    Discard
+                  </button>
+                  <button type="submit" disabled={isSubmitting} className="btn btn-primary btn-rounded" style={{ flex: 1 }}>
+                    {isSubmitting ? 'Saving…' : 'Save'}
+                  </button>
                 </div>
-             </form>
+              </form>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div><h1 style={{ fontSize: '24px', color: 'var(--primary)' }}>Food Classification System</h1><p style={{ color: 'var(--text-muted)' }}>Global food taxonomies.</p></div>
-        <button onClick={() => { setEditingCat(null); setCatName(''); setIsModalOpen(true); }} className="btn btn-primary"><Plus size={18} /> New Category</button>
+        <AdminPageHeader
+          eyebrow="Catalog"
+          title="Food categories"
+          description="Taxonomy for menu items across shops. Open a card to inspect every item using that category."
+          actions={
+            <button
+              type="button"
+              onClick={() => {
+                setEditingCat(null);
+                setCatName('');
+                setIsModalOpen(true);
+              }}
+              className="btn btn-primary btn-rounded"
+              style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+            >
+              <Plus size={18} /> New category
+            </button>
+          }
+        />
+
+        <CategoriesGrid refreshTrigger={refreshTrigger} onEdit={handleOpenEdit} onDetail={handleOpenDetail} />
       </div>
-
-      <CategoriesGrid refreshTrigger={refreshTrigger} onEdit={handleOpenEdit} onDetail={handleOpenDetail} />
-    </div>
+    </AdminPage>
   );
 };
 

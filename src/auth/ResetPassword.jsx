@@ -41,8 +41,8 @@ const ResetPassword = () => {
     const getStrengthColor = (s) => ['#EF4444', '#F97316', '#FBBF24', '#10B981', '#059669'][s]
 
     return (
-        <div style={{ minHeight: '100vh', backgroundColor: '#1E1B4B', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-            <div style={{ width: '100%', maxWidth: '420px', backgroundColor: '#FFFFFF', borderRadius: '24px', padding: '40px' }}>
+        <div className="auth-layout">
+            <div className="auth-panel">
                 <div style={{ textAlign: 'center', marginBottom: '32px' }}>
                     <h1 style={{ fontSize: '24px', fontWeight: '800', color: '#111827', marginBottom: '8px' }}>New Password</h1>
                     <p style={{ color: '#6B7280', fontSize: '15px' }}>Security requirement: Strong (3/4) or better</p>
@@ -58,7 +58,8 @@ const ResetPassword = () => {
                                 minLength={12}
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                style={{ width: '100%', padding: '14px 48px 14px 16px', borderRadius: '12px', border: '1px solid #E5E7EB', outline: 'none' }}
+                                className="input-modal-glass"
+                                style={{ width: '100%', padding: '14px 48px 14px 16px', borderRadius: '12px', outline: 'none' }}
                                 placeholder="Min 12 characters"
                             />
                             <button 
@@ -90,23 +91,26 @@ const ResetPassword = () => {
                             required 
                             value={confirm}
                             onChange={(e) => setConfirm(e.target.value)}
-                            style={{ width: '100%', padding: '14px 16px', borderRadius: '12px', border: '1px solid #E5E7EB', outline: 'none' }}
+                            className="input-modal-glass"
+                            style={{ width: '100%', padding: '14px 16px', borderRadius: '12px', outline: 'none' }}
                         />
                     </div>
 
                     <button 
                         type="submit" 
                         disabled={isSubmitting || score < 3}
+                        className="btn-rounded"
                         style={{ 
                             width: '100%', 
                             padding: '16px', 
                             backgroundColor: (isSubmitting || score < 3) ? '#9CA3AF' : '#6366F1', 
                             color: '#FFFFFF', 
-                            borderRadius: '12px', 
+                            borderRadius: '14px', 
                             fontSize: '16px', 
                             fontWeight: '700', 
                             border: 'none', 
-                            cursor: (isSubmitting || score < 3) ? 'not-allowed' : 'pointer' 
+                            cursor: (isSubmitting || score < 3) ? 'not-allowed' : 'pointer',
+                            boxShadow: (isSubmitting || score < 3) ? 'none' : '0 10px 24px rgba(99, 102, 241, 0.35)'
                         }}
                     >
                         {isSubmitting ? 'Updating...' : 'Set New Password'}

@@ -1,15 +1,22 @@
-import { Activity, UserPlus, Store, Trash2, Edit2, ShieldCheck, UserCheck } from 'lucide-react';
+import { Activity, UserPlus, Store, Trash2, ShieldCheck, UserCheck, ChevronRight } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { Link } from 'react-router-dom';
 
 const RecentActivityFeed = ({ activities = [] }) => {
   const getIcon = (action) => {
     switch (action) {
-      case 'created_shop': return Store;
-      case 'assigned_vendor': return UserPlus;
-      case 'deleted_shop': return Trash2;
-      case 'deactivated_vendor': return ShieldCheck;
-      case 'created_location': return UserCheck;
-      default: return Activity;
+      case 'created_shop':
+        return Store;
+      case 'assigned_vendor':
+        return UserPlus;
+      case 'deleted_shop':
+        return Trash2;
+      case 'deactivated_vendor':
+        return ShieldCheck;
+      case 'created_location':
+        return UserCheck;
+      default:
+        return Activity;
     }
   };
 
@@ -20,47 +27,77 @@ const RecentActivityFeed = ({ activities = [] }) => {
   };
 
   return (
-    <div className="card">
-      <h3 style={{ marginBottom: '24px', fontSize: '18px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <Activity size={20} color="var(--accent)" />
-        Recent Activities
+    <div className="glass-card" style={{ padding: '24px', height: 'fit-content' }}>
+      <h3 style={{ marginBottom: '22px', fontSize: '17px', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <Activity size={20} color="#6366f1" />
+        Recent activity
       </h3>
-      
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-        {activities.length === 0 && <p style={{ fontSize: '13px', color: 'var(--text-muted)', textAlign: 'center' }}>No recent admin actions.</p>}
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        {activities.length === 0 && (
+          <p style={{ fontSize: '14px', color: 'var(--text-muted)', textAlign: 'center', padding: '28px 16px', lineHeight: 1.5 }}>
+            No recent admin actions. Changes to shops, vendors, and locations will appear here.
+          </p>
+        )}
         {activities.map((activity, index) => {
           const Icon = getIcon(activity.action);
           const color = getColor(activity.action);
           return (
-            <div key={activity.id || index} style={{ display: 'flex', gap: '16px', position: 'relative' }}>
-              {index !== activities.length - 1 && (
-                <div style={{
-                  position: 'absolute',
-                  left: '18px',
-                  top: '40px',
-                  width: '2px',
-                  height: 'calc(100% - 16px)',
-                  backgroundColor: '#F1F5F9'
-                }}></div>
-              )}
-              <div style={{
-                width: '38px',
-                height: '38px',
-                borderRadius: '50%',
-                backgroundColor: color + '15',
+            <div
+              key={activity.id || index}
+              className="dashboard-animate-in"
+              style={{
                 display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: color,
-                zIndex: 1
-              }}>
+                gap: '14px',
+                position: 'relative',
+                padding: '14px 12px',
+                borderRadius: '16px',
+                transition: 'background 0.2s ease',
+                animationDelay: `${Math.min(index, 8) * 0.05}s`,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.55)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent';
+              }}
+            >
+              {index !== activities.length - 1 && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    left: '29px',
+                    top: '48px',
+                    width: '2px',
+                    height: 'calc(100% - 20px)',
+                    background: 'linear-gradient(180deg, rgba(148, 163, 184, 0.45) 0%, rgba(148, 163, 184, 0.08) 100%)',
+                    borderRadius: '2px',
+                  }}
+                />
+              )}
+              <div
+                style={{
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: '14px',
+                  backgroundColor: color + '18',
+                  border: `1px solid ${color}33`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: color,
+                  zIndex: 1,
+                  flexShrink: 0,
+                }}
+              >
                 <Icon size={18} />
               </div>
-              <div style={{ flex: 1 }}>
-                <p style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text-main)' }}>
-                  {activity.action.split('_').join(' ')}: {activity.target_type} {activity.target_id?.slice(0, 8)}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ fontSize: '14px', fontWeight: 600, color: '#1e293b', lineHeight: 1.35 }}>
+                  {activity.action.split('_').join(' ')}: {activity.target_type}{' '}
+                  {activity.target_id?.slice(0, 8)}
                 </p>
-                <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px' }}>
+                <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '6px', fontWeight: 500 }}>
                   {formatDistanceToNow(new Date(activity.created_at), { addSuffix: true })}
                 </p>
               </div>
@@ -69,9 +106,29 @@ const RecentActivityFeed = ({ activities = [] }) => {
         })}
       </div>
 
-      <button className="btn btn-outline" style={{ marginTop: '24px', width: '100%', fontSize: '13px' }}>
-        View All History
-      </button>
+      <Link
+        to="/analytics"
+        className="btn btn-outline"
+        style={{
+          marginTop: '20px',
+          width: '100%',
+          fontSize: '13px',
+          fontWeight: 600,
+          borderRadius: '14px',
+          padding: '12px',
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '8px',
+          border: '1px solid rgba(226, 232, 240, 0.95)',
+          background: 'rgba(255, 255, 255, 0.45)',
+          backdropFilter: 'blur(8px)',
+          transition: 'background 0.2s ease, border-color 0.2s ease, transform 0.15s ease',
+        }}
+      >
+        View analytics
+        <ChevronRight size={16} />
+      </Link>
     </div>
   );
 };

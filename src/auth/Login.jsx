@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useAuthContext } from '../auth/AuthContext'
+import { useAuthContext } from './AuthContext'
 import { Lock, Mail, Eye, EyeOff, ShieldAlert } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
@@ -77,23 +77,8 @@ const Login = () => {
   }
 
   return (
-    <div style={{ 
-      minHeight: '100vh', 
-      backgroundColor: '#1E1B4B', 
-      display: 'flex', 
-      alignItems: 'center', 
-      justifyContent: 'center', 
-      flexDirection: 'column',
-      padding: '20px'
-    }}>
-      <div style={{ 
-        width: '100%', 
-        maxWidth: '420px', 
-        backgroundColor: '#FFFFFF', 
-        borderRadius: '24px', 
-        padding: '40px',
-        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
-      }}>
+    <div className="auth-layout">
+      <div className="auth-panel">
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
           <div style={{ 
             width: '60px', 
@@ -218,12 +203,13 @@ const Login = () => {
           <button 
             type="submit" 
             disabled={isSubmitting || locked}
+            className="btn-rounded"
             style={{ 
               width: '100%', 
               padding: '16px', 
               backgroundColor: locked ? '#9CA3AF' : '#6366F1', 
               color: '#FFFFFF', 
-              borderRadius: '12px', 
+              borderRadius: '14px', 
               fontSize: '16px', 
               fontWeight: '700', 
               border: 'none', 

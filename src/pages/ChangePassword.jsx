@@ -3,6 +3,7 @@ import { ShieldCheck, Lock, Eye, EyeOff, Save, AlertCircle } from 'lucide-react'
 import { supabase } from '../lib/supabaseClient';
 import toast from 'react-hot-toast';
 import zxcvbn from 'zxcvbn';
+import { AdminPage, AdminPageHeader } from '../components/layout/AdminPage';
 
 const ChangePassword = () => {
   const [newPassword, setNewPassword] = useState('');
@@ -10,13 +11,12 @@ const ChangePassword = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Security Scoring
   const strength = zxcvbn(newPassword);
-  const score = strength.score; // 0-4
+  const score = strength.score;
 
   const handleUpdate = async (e) => {
     e.preventDefault();
-    
+
     if (newPassword !== confirmPassword) {
       toast.error('Passwords do not match');
       return;
@@ -41,108 +41,131 @@ const ChangePassword = () => {
   };
 
   const getStrengthColor = (s) => ['#EF4444', '#F97316', '#FBBF24', '#10B981', '#059669'][s];
+  const canSubmit = !loading && score >= 3 && newPassword === confirmPassword && newPassword.length > 0;
 
   return (
-    <div style={{ maxWidth: '600px', margin: '0 auto' }}>
-      <div style={{ marginBottom: '32px' }}>
-        <h1 style={{ fontSize: '24px', fontWeight: '800', color: '#1E1B4B', marginBottom: '8px' }}>Security Settings</h1>
-        <p style={{ color: 'var(--text-muted)' }}>Update your administrative credentials and security policy.</p>
-      </div>
+    <AdminPage>
+      <div style={{ maxWidth: '640px', margin: '0 auto', width: '100%', display: 'flex', flexDirection: 'column', gap: '22px' }}>
+        <AdminPageHeader
+          eyebrow="Account"
+          title="Security settings"
+          description="Update your administrative password. Strong credentials help protect campus operations data."
+        />
 
-      <div className="card" style={{ padding: '40px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px', color: '#6366F1' }}>
-          <ShieldCheck size={28} />
-          <h3 style={{ fontSize: '20px', fontWeight: '700', color: '#111827' }}>Update Password</h3>
-        </div>
-
-        <div style={{ padding: '16px', backgroundColor: '#EEF2FF', borderRadius: '12px', border: '1px solid #E0E7FF', marginBottom: '32px', display: 'flex', gap: '12px' }}>
-          <AlertCircle size={20} color="#6366F1" style={{ flexShrink: 0 }} />
-          <p style={{ fontSize: '13px', color: '#4338CA', lineHeight: '1.5' }}>
-            <strong>Security Policy:</strong> Passwords must be at least 12 characters and score "Strong" (3/4) on our complexity meter to protect system integrity.
-          </p>
-        </div>
-
-        <form onSubmit={handleUpdate}>
-          <div style={{ marginBottom: '24px' }}>
-            <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#374151', marginBottom: '8px' }}>New Password</label>
-            <div style={{ position: 'relative' }}>
-              <Lock size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF' }} />
-              <input 
-                type={showPassword ? 'text' : 'password'} 
-                required 
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="Minimum 12 characters"
-                style={{ width: '100%', padding: '14px 48px 14px 48px', borderRadius: '12px', border: '1px solid #E5E7EB', outline: 'none' }}
-              />
-              <button 
-                type="button" 
-                onClick={() => setShowPassword(!showPassword)}
-                style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', border: 'none', background: 'none', color: '#9CA3AF', cursor: 'pointer' }}
-              >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
+        <div className="glass-card" style={{ padding: '32px 28px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '28px', color: '#6366F1' }}>
+            <div
+              style={{
+                width: '48px',
+                height: '48px',
+                borderRadius: '14px',
+                background: 'linear-gradient(145deg, rgba(99,102,241,0.2), rgba(99,102,241,0.08))',
+                border: '1px solid rgba(99,102,241,0.25)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <ShieldCheck size={26} />
             </div>
-
-            {/* Strength Meter */}
-            <div style={{ marginTop: '12px' }}>
-              <div style={{ display: 'flex', gap: '4px', height: '6px', borderRadius: '3px', overflow: 'hidden', backgroundColor: '#F1F5F9', marginBottom: '8px' }}>
-                {[...Array(4)].map((_, i) => (
-                  <div key={i} style={{ flex: 1, backgroundColor: i < score ? getStrengthColor(score) : 'transparent' }}></div>
-                ))}
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                 <span style={{ fontSize: '12px', fontWeight: '700', color: getStrengthColor(score) }}>
-                    {newPassword.length > 0 ? ['Very Weak', 'Weak', 'So-so', 'Strong', 'Excellent!'][score] : 'Enter a password'}
-                 </span>
-                 {score < 3 && newPassword.length > 0 && (
-                   <span style={{ fontSize: '11px', color: '#EF4444', fontWeight: '600' }}>Requirements not met</span>
-                 )}
-              </div>
+            <div>
+              <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a' }}>Update password</h3>
+              <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Minimum strength: Strong (3/4) on the meter below.</p>
             </div>
           </div>
 
-          <div style={{ marginBottom: '32px' }}>
-            <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#374151', marginBottom: '8px' }}>Confirm New Password</label>
-            <div style={{ position: 'relative' }}>
-              <Lock size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF' }} />
-              <input 
-                type="password" 
-                required 
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Repeat new password"
-                style={{ width: '100%', padding: '14px 14px 14px 48px', borderRadius: '12px', border: '1px solid #E5E7EB', outline: 'none' }}
-              />
-            </div>
-          </div>
-
-          <button 
-            type="submit" 
-            disabled={loading || score < 3 || newPassword !== confirmPassword}
-            style={{ 
-              width: '100%', 
-              padding: '16px', 
-              backgroundColor: (loading || score < 3 || newPassword !== confirmPassword) ? '#94A3B8' : '#6366F1', 
-              color: '#FFFFFF', 
-              borderRadius: '12px', 
-              fontSize: '16px', 
-              fontWeight: '700', 
-              border: 'none', 
-              cursor: (loading || score < 3) ? 'not-allowed' : 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '12px',
-              boxShadow: (score >= 3) ? '0 10px 15px -3px rgba(99, 102, 241, 0.4)' : 'none'
-            }}
+          <div
+            className="glass-inset"
+            style={{ padding: '16px 18px', marginBottom: '28px', display: 'flex', gap: '14px', alignItems: 'flex-start', border: '1px solid rgba(99, 102, 241, 0.2)' }}
           >
-            <Save size={20} />
-            {loading ? 'Securing Identity...' : 'Update Admin Password'}
-          </button>
-        </form>
+            <AlertCircle size={20} color="#6366F1" style={{ flexShrink: 0, marginTop: '2px' }} />
+            <p style={{ fontSize: '13px', color: '#4338ca', lineHeight: 1.55 }}>
+              <strong>Policy:</strong> Use at least 12 characters and a mix of characters. Weak passwords cannot be saved.
+            </p>
+          </div>
+
+          <form onSubmit={handleUpdate}>
+            <div style={{ marginBottom: '22px' }}>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#475569', marginBottom: '8px' }}>New password</label>
+              <div style={{ position: 'relative' }}>
+                <Lock size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="Minimum 12 characters"
+                  className="input-modal-glass"
+                  style={{ paddingLeft: '44px', paddingRight: '48px' }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', border: 'none', background: 'none', color: '#94a3b8', cursor: 'pointer' }}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+
+              <div style={{ marginTop: '12px' }}>
+                <div style={{ display: 'flex', gap: '4px', height: '6px', borderRadius: '6px', overflow: 'hidden', backgroundColor: 'rgba(241, 245, 249, 0.9)', marginBottom: '8px' }}>
+                  {[...Array(4)].map((_, i) => (
+                    <div key={i} style={{ flex: 1, backgroundColor: i < score ? getStrengthColor(score) : 'transparent', borderRadius: '2px' }} />
+                  ))}
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '12px', fontWeight: 700, color: getStrengthColor(score) }}>
+                    {newPassword.length > 0 ? ['Very weak', 'Weak', 'So-so', 'Strong', 'Excellent'][score] : 'Enter a password'}
+                  </span>
+                  {score < 3 && newPassword.length > 0 && (
+                    <span style={{ fontSize: '11px', color: '#EF4444', fontWeight: 600 }}>Requirements not met</span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '28px' }}>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#475569', marginBottom: '8px' }}>Confirm password</label>
+              <div style={{ position: 'relative' }}>
+                <Lock size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+                <input
+                  type="password"
+                  required
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Repeat new password"
+                  className="input-modal-glass"
+                  style={{ paddingLeft: '44px' }}
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={!canSubmit}
+              className="btn btn-primary btn-rounded"
+              style={{
+                width: '100%',
+                padding: '16px',
+                fontSize: '16px',
+                fontWeight: 700,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '12px',
+                opacity: canSubmit ? 1 : 0.55,
+                cursor: canSubmit ? 'pointer' : 'not-allowed',
+                boxShadow: canSubmit ? '0 12px 28px rgba(99, 102, 241, 0.35)' : 'none',
+              }}
+            >
+              <Save size={20} />
+              {loading ? 'Updating…' : 'Update admin password'}
+            </button>
+          </form>
+        </div>
       </div>
-    </div>
+    </AdminPage>
   );
 };
 
