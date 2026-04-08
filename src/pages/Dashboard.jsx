@@ -115,7 +115,7 @@ const Dashboard = () => {
     const fetchStats = async () => {
       setStatsLoading(true);
       try {
-        const { data: orders } = await supabase.from('orders').select('total_amount, status, created_at');
+        const { data: orders } = await supabaseAdmin.from('orders').select('total_amount, status, created_at');
         const shops = await fetchShopRowsAdmin();
 
         const liveIds = liveShopIdsFromRows(shops);

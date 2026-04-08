@@ -1,25 +1,52 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, Store, UserCheck, ShoppingBag } from 'lucide-react';
-import { supabase } from '../../lib/supabaseClient';
+import { MapPin, Store, UserCheck, ShoppingBag, Shield } from 'lucide-react';
+import { supabaseAdmin } from '../../lib/supabaseAdmin';
+
+/** Same rules as Dashboard / Shops: online unless inactive or not accepting orders. */
+function shopRowIsLive(row) {
+  if (!row?.id) return false;
+  if (row.is_active === false) return false;
+  if (row.is_accepting_orders === false) return false;
+  return true;
+}
+
+async function fetchShopRowsForLiveCount() {
+  let { data, error } = await supabaseAdmin.from('shops').select('id, is_active, is_accepting_orders');
+  if (error) {
+    const r2 = await supabaseAdmin.from('shops').select('id, is_active');
+    data = r2.data;
+  }
+  return data || [];
+}
 
 const QuickStatsGrid = () => {
-  const [counts, setCounts] = useState({ locations: 0, shops: 0, vendors: 0, orders: 0 });
+  const [counts, setCounts] = useState({
+    locations: 0,
+    liveShops: 0,
+    vendors: 0,
+    superAdmins: 0,
+    orders: 0,
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchCounts = async () => {
-      const [l, s, v, o] = await Promise.all([
-        supabase.from('locations').select('*', { count: 'exact', head: true }),
-        supabase.from('shops').select('*', { count: 'exact', head: true }),
-        supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'vendor'),
-        supabase.from('orders').select('*', { count: 'exact', head: true }),
+      const [l, shopRows, v, a, o] = await Promise.all([
+        supabaseAdmin.from('locations').select('*', { count: 'exact', head: true }),
+        fetchShopRowsForLiveCount(),
+        supabaseAdmin.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'vendor'),
+        supabaseAdmin.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'super_admin'),
+        supabaseAdmin.from('orders').select('*', { count: 'exact', head: true }),
       ]);
 
+      const liveShops = (shopRows || []).filter(shopRowIsLive).length;
+
       setCounts({
-        locations: l.count || 0,
-        shops: s.count || 0,
-        vendors: v.count || 0,
-        orders: o.count || 0,
+        locations: l.count ?? 0,
+        liveShops,
+        vendors: v.count ?? 0,
+        superAdmins: a.count ?? 0,
+        orders: o.count ?? 0,
       });
       setLoading(false);
     };
@@ -29,8 +56,9 @@ const QuickStatsGrid = () => {
 
   const stats = [
     { label: 'Locations', value: counts.locations, icon: MapPin, accent: '#6366f1' },
-    { label: 'Live shops', value: counts.shops, icon: Store, accent: '#10b981' },
+    { label: 'Live shops', value: counts.liveShops, icon: Store, accent: '#10b981' },
     { label: 'Vendors', value: counts.vendors, icon: UserCheck, accent: '#f59e0b' },
+    { label: 'Super admins', value: counts.superAdmins, icon: Shield, accent: '#8b5cf6' },
     { label: 'Orders', value: counts.orders, icon: ShoppingBag, accent: '#0f172a' },
   ];
 
@@ -43,7 +71,7 @@ const QuickStatsGrid = () => {
           gap: '16px',
         }}
       >
-        {[...Array(4)].map((_, i) => (
+        {[...Array(5)].map((_, i) => (
           <div key={i} className="glass-card" style={{ padding: '22px', minHeight: '112px', display: 'flex', gap: '16px', alignItems: 'center' }}>
             <div className="skeleton-block" style={{ width: '52px', height: '52px', borderRadius: '16px', flexShrink: 0 }} />
             <div style={{ flex: 1 }}>

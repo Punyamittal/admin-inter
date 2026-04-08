@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Search, ShoppingBag } from 'lucide-react';
-import { supabase } from '../lib/supabaseClient';
+import { supabaseAdmin } from '../lib/supabaseAdmin';
 import { AdminPage, AdminPageHeader, PageLoading } from '../components/layout/AdminPage';
 
 const Orders = () => {
@@ -10,18 +10,20 @@ const Orders = () => {
 
   useEffect(() => {
     const fetchOrders = async () => {
-      const { data } = await supabase
+      const { data, error } = await supabaseAdmin
         .from('orders')
         .select(
           `
-                *,
-                shops (name),
-                profiles:user_id (full_name)
-            `
+          *,
+          student:profiles!student_id (full_name),
+          shop:shops (name)
+        `
         )
         .order('created_at', { ascending: false });
 
-      if (data) setOrders(data);
+      if (error && import.meta.env.DEV) console.warn('[Orders]', error);
+
+      setOrders(data || []);
       setLoading(false);
     };
     fetchOrders();
@@ -32,8 +34,8 @@ const Orders = () => {
     if (!q) return orders;
     return orders.filter((order) => {
       const id = order.id?.toLowerCase() || '';
-      const shop = order.shops?.name?.toLowerCase() || '';
-      const customer = order.profiles?.full_name?.toLowerCase() || '';
+      const shop = order.shop?.name?.toLowerCase() || '';
+      const customer = order.student?.full_name?.toLowerCase() || '';
       return id.includes(q) || shop.includes(q) || customer.includes(q);
     });
   }, [orders, searchQuery]);
@@ -90,14 +92,21 @@ const Orders = () => {
                 {filteredOrders.map((order) => (
                   <tr key={order.id} className="table-row-glass">
                     <td style={{ padding: '18px 20px', fontFamily: 'ui-monospace, monospace', fontSize: '13px', fontWeight: 600, color: '#334155' }}>#{order.id.slice(0, 8)}</td>
-                    <td style={{ padding: '18px 20px', fontWeight: 700, color: '#0f172a' }}>{order.shops?.name || '—'}</td>
-                    <td style={{ padding: '18px 20px', color: '#475569' }}>{order.profiles?.full_name || 'Guest'}</td>
+                    <td style={{ padding: '18px 20px', fontWeight: 700, color: '#0f172a' }}>{order.shop?.name || '—'}</td>
+                    <td style={{ padding: '18px 20px', color: '#475569' }}>{order.student?.full_name || 'Guest'}</td>
                     <td style={{ padding: '18px 20px', fontWeight: 800, color: '#0f172a' }}>₹{order.total_amount || 0}</td>
                     <td style={{ padding: '18px 20px' }}>
                       <span className={`status-badge status-${order.status?.toLowerCase() || 'pending'}`}>{order.status || 'Received'}</span>
                     </td>
                     <td style={{ padding: '18px 20px', color: 'var(--text-muted)', fontSize: '13px', fontWeight: 500 }}>
-                      {new Date(order.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      {order.created_at
+                        ? new Date(order.created_at).toLocaleString([], {
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })
+                        : '—'}
                     </td>
                   </tr>
                 ))}
