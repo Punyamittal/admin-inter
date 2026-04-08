@@ -1,5 +1,5 @@
 import { Activity, UserPlus, Store, Trash2, ShieldCheck, UserCheck, ChevronRight } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
+import { formatRelativeTime } from '../../lib/formatTime';
 import { Link } from 'react-router-dom';
 
 const RecentActivityFeed = ({ activities = [] }) => {
@@ -98,7 +98,7 @@ const RecentActivityFeed = ({ activities = [] }) => {
                   {activity.target_id?.slice(0, 8)}
                 </p>
                 <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '6px', fontWeight: 500 }}>
-                  {formatDistanceToNow(new Date(activity.created_at), { addSuffix: true })}
+                  {formatRelativeTime(activity.created_at)}
                 </p>
               </div>
             </div>

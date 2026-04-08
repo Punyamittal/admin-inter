@@ -84,11 +84,14 @@ export function useCampusOrderMonitor() {
         'postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'orders' },
         (payload) => {
-          setAllLiveOrders(prev =>
-            prev.map(o =>
-              o.id === payload.new.id ? { ...o, ...payload.new } : o
-            )
-          )
+          setAllLiveOrders((prev) =>
+            prev.map((o) => {
+              if (o.id !== payload.new.id) return o;
+              const merged = { ...o, ...payload.new };
+              if (payload.new.created_at == null) merged.created_at = o.created_at;
+              return merged;
+            })
+          );
         }
       )
       .subscribe()
