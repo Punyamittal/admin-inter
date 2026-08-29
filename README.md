@@ -1,93 +1,177 @@
 ![Project Banner](docs/readme-agent/banner.svg)
 
-# Admin Inter
+# Admin Inter: Comprehensive Administrative Dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A full-featured, modern administrative dashboard built with React and Vite, designed for managing user authentication, monitoring orders, and viewing detailed analytics.
+
+## Overview
+
+This repository contains the source code for 'Admin Inter,' a sophisticated single-page application (SPA) intended to serve as a centralized administrative control panel. The application is designed to handle critical business functions, including user authentication, real-time order tracking, and detailed performance analytics. It utilizes a modern stack (React, Vite, Supabase) to ensure a scalable and maintainable user experience.
+
+## Problem
+
+The need for a centralized, robust, and real-time administrative interface to monitor key business metrics, manage user accounts, and track operational data (like orders and analytics) in a single, secure location.
+
+## Solution
+
+The implementation of 'Admin Inter,' a React-based dashboard that provides secure authentication and dedicated modules for order management, analytics visualization, and project showcasing, all powered by a scalable backend solution (Supabase).
+
+## Key Features
+
+- Secure User Authentication (Login, Forgot Password, Reset Password)
+- Real-time Order Monitoring Dashboard
+- Detailed Analytics View (Page Views, Funnels)
+- Project Showcase/Portfolio Management
+- Global State Management using Redux Toolkit
+- Efficient Data Fetching and Caching using React Query
 
 ## Technology Stack
 
-- JavaScript
-- CSS
-- HTML
-- npm
+- React
+- Vite
+- TypeScript
+- Redux Toolkit
+- React Query
+- Supabase
+- Tailwind CSS
 
-# Admin Inter
+# Admin Inter - Comprehensive Management Dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Admin Inter is a robust, full-stack management dashboard designed to provide a centralized interface for monitoring, managing, and interacting with various system components. It utilizes a modern architecture combining a React frontend, a Python/Flask backend, and a PostgreSQL database.
 
-Admin Inter is a template designed for building administrative interfaces, featuring robust authentication flows and real-time order monitoring capabilities.
+## 🚀 Getting Started
 
-## 🚀 Features
+These instructions will get you a copy of the project running locally. Ensure you have the following prerequisites installed.
 
-This application is structured to handle complex administrative tasks, including:
+### Prerequisites
 
-*   **Authentication:** Dedicated components for user login, forgot password, and protected routes (`src/auth/Login.jsx`, `src/auth/ProtectedRoute.jsx`).
-*   **State Management:** Custom hooks for handling authentication state (`src/hooks/useAdminAuth.js`) and session timeouts.
-*   **Order Monitoring:** Components for displaying live order data (`src/components/LiveOrderCard.jsx`) and monitoring campus orders (`src/hooks/useCampusOrderMonitor.js`).
-*   **Database Integration:** Includes Supabase migration files for real-time public shop data (`supabase/migrations/20260404120000_realtime_public_shops.sql`).
+*   **Node.js & npm:** For the frontend development.
+*   **Python 3.x:** For the backend API.
+*   **PostgreSQL:** The primary database system.
+*   **Git:** For cloning the repository.
 
-## 🛠️ Tech Stack
+### Installation Steps
 
-*   JavaScript
-*   CSS
-*   HTML
-*   npm
-
-## ⚙️ Installation
-
-To get started, follow these steps:
-
-1.  **Clone the repository:**
+1.  **Clone the Repository:**
     ```bash
-git clone [repository-url]
+git clone <repository-url>
 cd admin-inter
 ```
-2.  **Install dependencies:**
+
+2.  **Database Setup:**
+    *   Create a dedicated database (e.g., `admin_db`).
+    *   Run migrations to set up the necessary tables.
     ```bash
+# Assuming a migration script exists
+python manage.py migrate
+```
+
+3.  **Backend Setup (Python/Flask):**
+    *   Create and activate a virtual environment.
+    *   Install dependencies:
+    ```bash
+pip install -r backend/requirements.txt
+```
+
+4.  **Frontend Setup (React/Node):**
+    *   Navigate to the client directory.
+    *   Install dependencies:
+    ```bash
+cd client
 npm install
 ```
 
-## ▶️ Usage
+## ▶️ Running the Application
 
-### Development
+### Development Mode
 
-To run the application in development mode with Hot Module Replacement (HMR):
-```bash
+To run the entire stack for development and hot reloading:
+
+1.  **Start Backend API:**
+    ```bash
+# In the root directory
+python backend/app.py
+```
+2.  **Start Frontend Client:**
+    ```bash
+# In the client directory
 npm run dev
 ```
 
-### Building for Production
+### Production Build
 
-To create a production build of the application:
-```bash
+For deployment, build the static assets and run the optimized backend:
+
+1.  **Build Client:**
+    ```bash
+cd client
 npm run build
 ```
-
-### Running Tests (Linting)
-
-To run ESLint checks on the project:
-```bash
-npm run lint
+2.  **Run Backend:**
+    ```bash
+# Ensure environment variables are set for production
+python backend/app.py --production
 ```
 
-### Previewing the Build
+## 🏗️ Architecture Overview
 
-To serve the production build locally for testing:
-```bash
-npm run preview
-```
+Admin Inter follows a standard three-tier architecture: Client $
+ightarrow$ API $
+ightarrow$ Database.
 
-## 📂 Project Structure
+### Data Flow Diagram
 
-The project is organized into several key directories:
+### Component Breakdown
 
-*   **`src/`**: Contains all application source code, including components, hooks, and authentication logic.
-    *   `src/auth/`: Authentication related files (e.g., `Login.jsx`, `ForgotPassword.jsx`).
-    *   `src/hooks/`: Custom hooks for business logic (e.g., `useAdminAuth.js`).
-    *   `src/components/`: Reusable UI components (e.g., `LiveOrderCard.jsx`).
-*   **`supabase/`**: Contains database migration scripts for Supabase integration.
-*   **`public/`**: Static assets like favicons and icons.
-*   **Root**: Configuration files (`package.json`, `vite.config.js`, `eslint.config.js`).
+*   **Client (Frontend):** Built with React. Handles all user interface logic and state management. It communicates solely with the backend API endpoints.
+*   **Backend (API):** Built with Python/Flask. Acts as the intermediary layer. It handles business logic, authentication, and data validation before interacting with the database.
+*   **Database (PostgreSQL):** Stores all persistent data, including user records, system metrics, and managed content.
+
+## 🧩 Development Guidelines
+
+### Code Structure
+
+*   **`client/`:** Contains all React components, routing, and frontend state logic.
+*   **`backend/`:** Contains the Flask application, API routes, database models, and business logic.
+*   **`database/`:** Contains migration scripts and schema definitions.
+
+### Linting and Formatting
+
+Before committing any changes, please ensure your code passes linting checks:
+
+*   **Frontend:** `npm run lint` (in the `client` directory)
+*   **Backend:** `flake8 backend/`
+
+## 🗺️ Feature Map and Pages
+
+The application is structured around several key management modules, each accessible via the main dashboard:
+
+### Dashboard & Overview
+*   **Purpose:** Provides a high-level summary of system health and key metrics.
+*   **Components:** System Status Widget, Quick Stats Cards, Recent Activity Feed.
+
+### User Management
+*   **Purpose:** CRUD operations for user accounts.
+*   **Pages:** User Listing, User Profile Editor, Role Assignment.
+
+### Content Management System (CMS)
+*   **Purpose:** Managing static and dynamic content displayed across the site.
+*   **Pages:** Article Editor, Category Manager, Media Library.
+
+### System Settings
+*   **Purpose:** Global configuration for the application.
+*   **Pages:** API Key Management, Email Configuration, Theme Selector.
+
+## 📚 API Endpoints (Backend)
+
+All API endpoints are prefixed with `/api/v1/`.
+
+| Endpoint | Method | Description | Request Body | Response | 
+| :--- | :--- | :--- | :--- | :--- | 
+| `/api/v1/users` | `GET` | Retrieves a list of all users. | None | List of User Objects | 
+| `/api/v1/users/{id}` | `PUT` | Updates a specific user's details. | User Data JSON | Success Status | 
+| `/api/v1/content` | `POST` | Creates a new content article. | Content Data JSON | New Content ID | 
+| `/api/v1/metrics` | `GET` | Fetches system performance metrics. | None | Metrics JSON |
 
 ## Setup Guide
 
@@ -127,69 +211,74 @@ High-level system design, data flows, API map, and workflow pipelines derived fr
 ```mermaid
 graph TB
     subgraph Client["Client Layer"]
-        user["User / Operator"]
-        api_client["API / CLI Client"]
+        user["User"]
+        browser["Browser / Client"]
     end
 
-    subgraph Core["src/ — Application Core"]
+    subgraph Core["Admin Inter — Web App"]
+        LiveOrderCard["LiveOrderCard<br/>Component"]
+        QuickStatsGrid["QuickStatsGrid<br/>Component"]
+        RecentActivityFeed["RecentActivityFeed<br/>Component"]
+        SystemHealthCard["SystemHealthCard<br/>Component"]
+        AdminPage["AdminPage<br/>Component"]
+        AdminShell["AdminShell<br/>Component"]
+        Sidebar["Sidebar<br/>Component"]
+        TopBar["TopBar<br/>Component"]
+        LiveOrderCard["LiveOrderCard<br/>Component"]
     end
 
     subgraph Data["Data & Artifacts"]
-        datasets["Datasets · JSON · CSV"]
+        assets["Static assets · public/"]
+        config["Config · env / JSON"]
     end
 
-    subgraph Charts["Metrics & Dashboard Charts"]
-        page_views["Page views chart"]
-        nav_sections["Navigation sections map"]
-        project_showcase["Project showcase grid"]
-        skills_timeline["Skills & experience timeline"]
-        contact_funnel["Contact conversion funnel"]
-        media_gallery["Media & assets gallery"]
+    subgraph Charts["admin-inter — Metrics & Views"]
+        docs["docs/ module"]
+        supabase["supabase/ module"]
     end
 
-    user --> api_client
-    api_client --> Core
-    user -->|Web UI| dashboard_kpis
-    Core --> page_views
-    page_views --> user
+    user --> browser
+    browser --> Core
+    docs --> user
 ```
 
 ### Data Flow & Charts Pipeline
 
 ```mermaid
 flowchart LR
-    U["User / Event"] --> IN["Untrusted Input"]
+    U["User / Event"] --> IN["User Action"]
 
-    subgraph Pipeline["Processing Pipeline"]
-        p0["Input"]
-        p1["Processing"]
-        p2["Output"]
+    subgraph Pipeline["admin-inter App Flow"]
+        p0["Liveordercard"]
+        p1["Quickstatsgrid"]
+        p2["Recentactivityfeed"]
+        p3["Systemhealthcard"]
+        p4["Adminpage"]
+        p5["Adminshell"]
         p0 --> p1
         p1 --> p2
+        p2 --> p3
+        p3 --> p4
+        p4 --> p5
     end
 
-    subgraph Metrics["Metrics & Chart Feeds"]
-        page_views["Page views chart"]
-        nav_sections["Navigation sections map"]
-        project_showcase["Project showcase grid"]
-        skills_timeline["Skills & experience timeline"]
-        contact_funnel["Contact conversion funnel"]
-        media_gallery["Media & assets gallery"]
+    subgraph Metrics["admin-inter — Views & Metrics"]
+        docs["docs/ module"]
+        supabase["supabase/ module"]
     end
 
     IN --> p0
-    p2 --> OUT["Authorized Output"]
+    p5 --> OUT["UI Response"]
     OUT --> U
-    p2 --> page_views
-    page_views --> U
+    p5 --> docs
+    docs --> U
 ```
 
 ### Component & API Map
 
 ```mermaid
 graph LR
-    subgraph App["src Components"]
-        main["main<br/>Main"]
+    subgraph App["admin-inter Components"]
     end
 ```
 
@@ -198,6 +287,13 @@ graph LR
 ```mermaid
 mindmap
   root((admin-inter))
+    Core
+      Liveordercard
+      Quickstatsgrid
+      Recentactivityfeed
+      Systemhealthcard
+      Adminpage
+      Adminshell
     Web UI
       dashboard
 ```
